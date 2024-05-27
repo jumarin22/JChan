@@ -16,27 +16,31 @@ import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Controller
+@Controller  // This annotation indicates that this class serves as a controller in the MVC pattern
 public class JChanController {
 
-    private static final Logger logger = LoggerFactory.getLogger(JChanController.class);
+    private static final Logger logger = LoggerFactory.getLogger(JChanController.class);  // Logger instance for logging
 
-    @GetMapping("/fetch")
+    @GetMapping("/fetch")  // This annotation maps HTTP GET requests onto this method
     public ModelAndView fetchPost(@RequestParam String url) throws Exception {
-        Document doc = Jsoup.connect(url).get();
+        Document doc = Jsoup.connect(url).get();  // Connect to the URL and get the HTML document
 
+        // Extract all CSS links from the HTML document
         Elements linkElements = doc.select("link[rel=stylesheet]");
         List<String> cssLinks = new ArrayList<>();
         for (Element link : linkElements) {
             cssLinks.add(link.absUrl("href"));
         }
 
+        // Extract the original post and all replies from the HTML document
         Element postOp = doc.select("div.post.op").first();
         Elements postReplies = doc.select("div.post.reply");
 
+        // Regular expression pattern for 9-digit numbers
         Pattern pattern = Pattern.compile("(\\d{9})");
         Map<String, Integer> countMap = new HashMap<>();
 
+        // Extract all replies and count the occurrences of 9-digit numbers in each reply
         List<Reply> replyList = new ArrayList<>();
         for (Element postReply : postReplies) {
             String replyId = postReply.id();
@@ -61,6 +65,7 @@ public class JChanController {
             topReplies.add(entryList.get(i).getKey());
         }
 
+        // Create a BiFunction for checking if a string contains any of the elements in a list
         BiFunction<String, List<String>, Boolean> containsAnyFunction = this::containsAny;
 
         // Create a map where the keys are the top 5 numbers and the values are the corresponding replies
@@ -74,6 +79,7 @@ public class JChanController {
             }
         }
 
+        // Create a ModelAndView object and add all necessary objects to it
         ModelAndView modelAndView = new ModelAndView("post");
         modelAndView.addObject("opContent", postOp.html());
         modelAndView.addObject("replyList", replyList);
@@ -87,9 +93,10 @@ public class JChanController {
             logger.info("Number: " + number + ", Count: " + countMap.get(number));
         }
 
-        return modelAndView;
+        return modelAndView;  // Return the ModelAndView object
     }
 
+    // This method checks if a string contains any of the elements in a list
     public boolean containsAny(String str, List<String> elements) {
         for (String element : elements) {
             if (str.contains(element)) {
