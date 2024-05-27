@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <th:block th:each="cssLink : ${cssLinks}">
+        <link rel="stylesheet" th:href="${cssLink}">
+    </th:block>
+</head>
+<body>
+<div id="op-section">
+    <h2>Original Post</h2>
+    <div th:utext="${opContent}"></div>
+</div>
+<div id="reply-section">
+    <h2>Replies</h2>
+    <div th:each="entry : ${topRepliesMap.entrySet()}">
+        <div th:utext="${entry.value.content}"></div>
+    </div>
+</div>
+</div>
+</div>
+</body>
+</html>
